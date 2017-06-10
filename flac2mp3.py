@@ -219,6 +219,10 @@ class Recoder:
         image_path = flac.parent / 'folder.jpg'
         if image_path.exists():
             self.__set_image(mp3, image_path)
+        else:
+            image_path = flac.parent / 'cover.jpg'
+            if image_path.exists():
+                self.__set_image(mp3, image_path)
         self.__post_check(mp3)
 
     @staticmethod
