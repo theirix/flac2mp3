@@ -72,8 +72,9 @@ class Taginfo:
 
     def get_release_dir_name(self, mp3_mode):
         """ Compose a directory name for specific mp3_mode (V0 or 320) """
-        if not self.has('ARTIST') or not self.has('ALBUM') or not self.has('DATE'):
-            raise Exception('Not enough information to craft dir name')
+        for required in ('ARTIST', 'ALBUM', 'DATE'):
+            if not self.has(required):
+                raise Exception('Not {} information to craft dir name'.format(required))
         return "{} - {} ({}) [{}]".format(
             self.consume('ARTIST'), self.consume('ALBUM'), self.consume('DATE'), mp3_mode)
 
