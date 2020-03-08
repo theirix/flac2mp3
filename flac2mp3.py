@@ -196,10 +196,14 @@ class Recoder:
             mode_str = '320'
         else:
             raise Exception('Wrong mode str')
-        new_path = Path(path).resolve().parent / Path(Taginfo(str(flacs[0])).
-                                                      get_release_dir_name(mode_str))
+        if target:
+            target_parent_path = Path(target).expanduser().resolve()
+        else:
+            target_parent_path = Path(path).resolve().parent
+        new_path = target_parent_path / Path(Taginfo(str(flacs[0])).
+                                             get_release_dir_name(mode_str))
         if new_path.is_dir():
-            raise Exception('Target already exists')
+            raise Exception('Target already exists: %s' % new_path)
         print("New path is %s" % str(new_path))
         # Copy artwork, cues etc
         copytree(str(path), str(new_path), ignore=ignore_patterns('*.flac'))
@@ -307,6 +311,7 @@ def main():
     parser.add_argument('--vbr', action='store_true', help='VBR V0 mode')
     parser.add_argument('--cbr', action='store_true', help='CBR 320 mode')
     parser.add_argument('--new', action='store_true', help='Create new dir')
+    parser.add_argument('--target', type=str, help='Target directory')
     parser.add_argument('--force', '-f', action='store_true', help='Overwrite mp3')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose')
     parser.add_argument('path', help='Directory or file path')
@@ -318,7 +323,7 @@ def main():
     #    - recode a file
     recoder = Recoder(flags)
     if os.path.isdir(flags.path) and flags.new:
-        recoder.recode_new_dir(flags.path)
+        recoder.recode_new_dir(flags.path, flags.target)
     elif os.path.isdir(flags.path):
         recoder.recode_dir(flags.path)
     else:
