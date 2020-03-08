@@ -84,12 +84,13 @@ class Retagger(Taginfo):
     Cares about track and disc count, artist name, duplicate tags
     """
 
-    def __init__(self, flac_path, mp3_path, count, multidisc):
+    def __init__(self, flac_path, mp3_path, count, multidisc, verbose):
         # Initialize and cache tags
         Taginfo.__init__(self, flac_path)
         self.id3 = EasyID3(mp3_path)
         self.count = count
         self.multidisc = multidisc
+        self.verbose = verbose
 
     def __set_tracks(self):
         # set track number
@@ -155,7 +156,8 @@ class Retagger(Taginfo):
             self.id3[key] = self.consume(key)
 
         self.id3.save(v2_version=3)
-        print('Tags written')
+        if self.verbose:
+            print('Tags written')
 
 
 class Recoder:
@@ -214,7 +216,7 @@ class Recoder:
     def __recode_file_impl(self, flac, mp3, count, multidisc):
         """ Recode file, set tags and image """
         self.__recode_to_mp3(flac, mp3)
-        retagger = Retagger(str(flac), str(mp3), count, multidisc)
+        retagger = Retagger(str(flac), str(mp3), count, multidisc, self.flags.verbose)
         retagger.retag()
         image_path = flac.parent / 'folder.jpg'
         if image_path.exists():
@@ -242,7 +244,8 @@ class Recoder:
         id3tag = ID3(str(mp3), v2_version=3)
         id3tag.add(frame)
         id3tag.save(v2_version=3)
-        print('Images written')
+        if self.flags.verbose:
+            print('Images written')
 
     @staticmethod
     def __post_check(mp3):
@@ -269,7 +272,8 @@ class Recoder:
         mp3_path = str(mp3)
         try:
             cmd = "flac \"%s\" -d --silent --force -o \"%s\"" % (flac_path, wav_path)
-            print('Decoding: %s' % cmd)
+            if self.flags.verbose:
+                print('Decoding: %s' % cmd)
             subprocess.check_call(cmd, shell=True)
             lame_settings = ''
             if self.flags.vbr:
@@ -280,7 +284,8 @@ class Recoder:
                 lame_settings = self.flags.mode
             cmd = "lame --silent -q 0 \"%s\" --add-id3v2 --id3v2-only \"%s\" \"%s\"" % \
                   (lame_settings, wav_path, mp3_path)
-            print('Encoding: %s' % cmd)
+            if self.flags.verbose:
+                print('Encoding: %s' % cmd)
             subprocess.check_call(cmd, shell=True)
             tmp_wav.unlink()
         except Exception:  # pylint: disable=broad-except
@@ -301,6 +306,7 @@ def main():
     parser.add_argument('--cbr', action='store_true', help='CBR 320 mode')
     parser.add_argument('--new', action='store_true', help='Create new dir')
     parser.add_argument('--force', '-f', action='store_true', help='Overwrite mp3')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Verbose')
     parser.add_argument('path', help='Directory or file path')
     flags = parser.parse_args()
 
