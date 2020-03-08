@@ -263,7 +263,6 @@ class Recoder:
 
     def __recode_to_mp3(self, flac, mp3):
         """ Recode from FLAC to MP3 """
-        print(Fore.GREEN + '--- ' + str(flac) + Style.RESET_ALL)
         if flac.suffix != '.flac':
             raise Exception('Wrong path')
         if mp3.exists():
@@ -328,6 +327,7 @@ def main():
         recoder.recode_dir(flags.path)
     else:
         recoder.recode_file(flags.path)
+    print(Fore.GREEN + 'Done' + Style.RESET_ALL)
 
 
 if __name__ == '__main__':
