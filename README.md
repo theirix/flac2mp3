@@ -4,7 +4,7 @@ Recode and retag FLACs to MP3 for releasing at torrent tracker.
 
 ## Usage
 
-    flac2mp3.py [-h] [--vbr|--cbr] [--new] path
+    flac2mp3.py [-h] [--vbr|--cbr] [--new] [--target .] path
 
 Here CBR goes for LAME CBR 320 Kbps and VBR for LAME VBR V0.
 
