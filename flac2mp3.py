@@ -174,7 +174,7 @@ class Recoder:
         # Enumerate flacs
         flacs = sorted([x for x in Path(path).iterdir() if x.suffix == '.flac'])
         is_multidisc = self.__get_multidisc(list(flacs))
-        if len([x for x in flacs if str(x).count('"') > 0]):
+        if [x for x in flacs if str(x).count('"') > 0]:
             raise Exception('Quotes in names, cannot continue')
         # Finally recode
         for idx, flac in enumerate(flacs):
@@ -187,7 +187,7 @@ class Recoder:
         # Enumerate flacs
         flacs = sorted([x for x in Path(path).iterdir() if x.suffix == '.flac'])
         is_multidisc = self.__get_multidisc(list(flacs))
-        if len([x for x in flacs if str(x).count('"') > 0]):
+        if [x for x in flacs if str(x).count('"') > 0]:
             raise Exception('Quotes in names, cannot continue')
         # Compose new name
         if self.flags.vbr:
