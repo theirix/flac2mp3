@@ -177,11 +177,11 @@ class Recoder:
         if len([x for x in flacs if str(x).count('"') > 0]):
             raise Exception('Quotes in names, cannot continue')
         # Finally recode
-        for flac in flacs:
+        for idx, flac in enumerate(flacs):
             mp3 = flac.with_suffix('.mp3')
-            self.__recode_file_impl(flac, mp3, len(flacs), is_multidisc)
+            self.__recode_file_impl(flac, mp3, idx, len(flacs), is_multidisc)
 
-    def recode_new_dir(self, path):
+    def recode_new_dir(self, path, target):
         """ Mode: recode a dir to a new dir with a proper name """
 
         # Enumerate flacs
@@ -205,17 +205,19 @@ class Recoder:
         copytree(str(path), str(new_path), ignore=ignore_patterns('*.flac'))
         print("Copied %s files and dirs" % len([x for x in Path(new_path).iterdir()]))
         # Finally recode
-        for flac in flacs:
+        for idx, flac in enumerate(flacs):
             mp3 = new_path / flac.with_suffix('.mp3').name
-            self.__recode_file_impl(flac, mp3, len(flacs), is_multidisc)
+            self.__recode_file_impl(flac, mp3, idx, len(flacs), is_multidisc)
 
     def recode_file(self, flac):
         """ Mode: recode a file """
         mp3 = Path(flac).with_suffix('.mp3')
-        self.__recode_file_impl(Path(flac), mp3, None, False)
+        self.__recode_file_impl(Path(flac), mp3, None, False, None)
 
-    def __recode_file_impl(self, flac, mp3, count, multidisc):
+    def __recode_file_impl(self, flac, mp3, idx, count, multidisc):
         """ Recode file, set tags and image """
+        width = (count // 10) + 1
+        print("{}--- [{:0{}d}/{:0{}d}] {}{}".format(Fore.GREEN, idx+1, width, count, width, str(flac), Style.RESET_ALL))
         self.__recode_to_mp3(flac, mp3)
         retagger = Retagger(str(flac), str(mp3), count, multidisc, self.flags.verbose)
         retagger.retag()
@@ -232,8 +234,7 @@ class Recoder:
     def __get_multidisc(flac_pathes):
         return max([Taginfo(str(flac_path)).get_discnumber() for flac_path in flac_pathes]) > 1
 
-    @staticmethod
-    def __set_image(mp3, image_path):
+    def __set_image(self, mp3, image_path):
         """ Set image to MP3 tag from file """
         with open(str(image_path), "rb") as image_io:
             data = image_io.read()
