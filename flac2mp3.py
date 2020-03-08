@@ -225,13 +225,11 @@ class Recoder:
         self.__recode_to_mp3(flac, mp3)
         retagger = Retagger(str(flac), str(mp3), count, multidisc, self.flags.verbose)
         retagger.retag()
-        image_path = flac.parent / 'folder.jpg'
-        if image_path.exists():
-            self.__set_image(mp3, image_path)
-        else:
-            image_path = flac.parent / 'cover.jpg'
+        for name in ['folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg']:
+            image_path = flac.parent / name
             if image_path.exists():
                 self.__set_image(mp3, image_path)
+                break
         self.__post_check(mp3)
 
     @staticmethod
