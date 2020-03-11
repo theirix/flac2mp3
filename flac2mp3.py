@@ -218,6 +218,18 @@ class Recoder:
         mp3 = Path(flac).with_suffix('.mp3')
         self.__recode_file_impl(Path(flac), mp3, None, False, None)
 
+    @staticmethod
+    def __find_image(rootdir):
+        for name in ['folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg']:
+            image_path = rootdir / name
+            if image_path.exists():
+                return image_path
+        # find any other jpg in directory (non-recursive). if it is only one jpg, use it
+        other_jpgs = [x for x in Path(rootdir).iterdir() if x.is_file() and x.suffix == '.jpg']
+        if len(other_jpgs) == 1:
+            return other_jpgs[0]
+        return None
+
     def __recode_file_impl(self, flac, mp3, idx, count, multidisc):
         """ Recode file, set tags and image """
         width = (count // 10) + 1
@@ -225,11 +237,11 @@ class Recoder:
         self.__recode_to_mp3(flac, mp3)
         retagger = Retagger(str(flac), str(mp3), count, multidisc, self.flags.verbose)
         retagger.retag()
-        for name in ['folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg']:
-            image_path = flac.parent / name
-            if image_path.exists():
-                self.__set_image(mp3, image_path)
-                break
+        image_path = self.__find_image(flac.parent)
+        if image_path:
+            if self.flags.verbose:
+                print("Using image " + image_path.name)
+            self.__set_image(mp3, image_path)
         self.__post_check(mp3)
 
     @staticmethod
