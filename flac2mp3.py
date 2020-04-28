@@ -23,6 +23,7 @@ import mimetypes
 from pathlib import Path
 from shutil import copytree, ignore_patterns
 from argparse import ArgumentParser
+from sys import stdout
 from mutagen.flac import FLAC
 from mutagen.easyid3 import EasyID3
 # pylint: disable=no-name-in-module
@@ -323,6 +324,7 @@ def main():
     parser.add_argument('--target', type=str, help='Target directory')
     parser.add_argument('--force', '-f', action='store_true', help='Overwrite mp3')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose')
+    parser.add_argument('--beep', '-b', action='store_true', help='Beep')
     parser.add_argument('path', help='Directory or file path')
     flags = parser.parse_args()
 
@@ -338,6 +340,9 @@ def main():
     else:
         recoder.recode_file(flags.path)
     print(Fore.GREEN + 'Done' + Style.RESET_ALL)
+    if flags.beep and stdout.isatty():
+        stdout.write('\a')
+        stdout.flush()
 
 
 if __name__ == '__main__':
