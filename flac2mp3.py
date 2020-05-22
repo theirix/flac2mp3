@@ -275,6 +275,10 @@ class Recoder:
             print('Images written')
 
     @staticmethod
+    def __escape_path(s):
+        return s.replace('`', '\\`')
+
+    @staticmethod
     def __post_check(mp3):
         """ Tag sanity check """
         id3tag = EasyID3(str(mp3))
@@ -298,6 +302,7 @@ class Recoder:
         mp3_path = str(mp3)
         try:
             cmd = "flac \"%s\" -d --silent --force -o \"%s\"" % (flac_path, wav_path)
+            cmd = self.__escape_path(cmd)
             if self.flags.verbose:
                 print('Decoding: %s' % cmd)
             subprocess.check_call(cmd, shell=True)
@@ -310,6 +315,7 @@ class Recoder:
                 lame_settings = self.flags.mode
             cmd = "lame --silent -q 0 \"%s\" --add-id3v2 --id3v2-only \"%s\" \"%s\"" % \
                   (lame_settings, wav_path, mp3_path)
+            cmd = self.__escape_path(cmd)
             if self.flags.verbose:
                 print('Encoding: %s' % cmd)
             subprocess.check_call(cmd, shell=True)
